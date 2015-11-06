@@ -6,7 +6,7 @@ var config = {
 		count: 2,
 		speed: 1,
 		speedIncrement: 1,
-		radius: 60,
+		radius: 20,
 		fillColor: 'hotpink',
 		strokeColor: '#678',
 		increaseSpeed: function(killer) {
