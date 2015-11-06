@@ -1,0 +1,19 @@
+{
+  "name": "ball-expander-game",
+  "version": "1.0.0",
+  "description": "Ball Expansion Game",
+  "main": "index.js",
+  "dependencies": {
+    "bower": "^1.6.5"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/campearce/ball-expander-game.git"
+  },
+  "author": "Cam and James",
+  "bugs": {
+    "url": "https://github.com/campearce/ball-expander-game/issues"
+  },
+  "homepage": "https://github.com/campearce/ball-expander-game"
+}
