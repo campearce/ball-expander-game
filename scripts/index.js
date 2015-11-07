@@ -1,4 +1,6 @@
-
+var randomiseNumber = function(minimum, maximum) {
+	return (Math.random() * (maximum - minimum) + minimum);
+};
 var config = {
 	killerBalls: [],
 	fillerBalls: [],
@@ -28,8 +30,8 @@ var config = {
 			var maxSpawnX = (view.bounds.bottom + config.killers.radius);
 			var maxSpawnY = (view.bounds.right + config.killers.radius);
 			
-			var spawnX = (Math.random() * (maxSpawnX - minSpawnX) + minSpawnX);
-			var spawnY = (Math.random() * (maxSpawnY - minSpawnY) + minSpawnY);
+			var spawnX = randomiseNumber(minSpawnX, maxSpawnX);
+			var spawnY = randomiseNumber(minSpawnY, maxSpawnY);
 			
 			return [spawnX, spawnY];
 		}
