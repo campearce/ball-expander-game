@@ -5,11 +5,21 @@ var config = {
 	killers: {
 		count: 2,
 		speed: 1,
+		maxSpeed: 8,
 		speedIncrement: 1,
 		radius: 20,
 		fillColor: 'hotpink',
 		strokeColor: '#678',
 		increaseSpeed: function(killer) {
+			if (killer.speed === config.killers.maxSpeed) {
+				return;
+			}
+			
+			if (killer.speed + config.killers.speedIncrement > config.killers.maxSpeed) {
+				killer.speed = config.killers.maxSpeed;
+				return;
+			}
+			
 			killer.speed += config.killers.speedIncrement;
 		},
 		getSpawnLocation: function() {
