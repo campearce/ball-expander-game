@@ -6,7 +6,11 @@
   "dependencies": {
     "bower": "^1.6.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-eslint": "^1.0.0",
+    "st": "^1.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/campearce/ball-expander-game.git"
