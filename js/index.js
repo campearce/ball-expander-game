@@ -95,6 +95,27 @@
 		return dist < this.shape.radius + ball.shape.radius && dist !== 0;
 	};
 
+	Ball.prototype.canExpand = function(radius) {
+		radius = radius || this.shape.radius;
+		if(this.shape.position.x - radius < 0 || this.shape.position.y - radius < 0) {
+			return false;
+		}
+		if(this.shape.position.x + radius > this.view.bounds.right || this.shape.position.y + radius > this.view.bounds.bottom) {
+			return false;
+		}
+		return true;
+	};
+
+	Ball.prototype.canMoveTo = function(point) {
+		if(point.x - this.shape.radius < 0 || point.y - this.shape.radius < 0) {
+			return false;
+		}
+		if(point.x + this.shape.radius > this.view.bounds.right || point.y + this.shape.radius > this.view.bounds.bottom) {
+			return false;
+		}
+		return true;
+	};
+
 	var randomiseNumber = function(minimum, maximum) {
 		return (Math.random() * (maximum - minimum) + minimum);
 	};
@@ -155,18 +176,15 @@
 		if (newFiller) {
 			var newRadius = newFiller.shape.radius * config.fillers.growthRate;
 
-			if(newFiller.shape.position.x - newRadius < 0 || newFiller.shape.position.y - newRadius < 0) {
-				return;
-			}
-			if(newFiller.shape.position.x + newRadius > view.right || newFiller.shape.position.y + newRadius > view.bottom) {
-				return;
-			}
 			if(config.killerBalls.some(function(item) {
 				return item.collidesWith(newFiller);
 			})) {
 				newFiller.remove();
 				config.fillerBalls.splice(config.fillerBalls.indexOf(newFiller), 1);
 				newFiller = null;
+				return;
+			}
+			if(!newFiller.canExpand(newRadius)) {
 				return;
 			}
 			if(config.fillerBalls.some(function(item) {
@@ -180,18 +198,9 @@
 
 	view.on('mousemove', function(e) {
 		if(newFiller) {
-			if(e.point.x - newFiller.shape.radius < 0 || e.point.y - newFiller.shape.radius < 0) {
-				return;
+			if(newFiller.canMoveTo(e.point)) {
+				newFiller.shape.position = e.point;
 			}
-			if(e.point.x + newFiller.shape.radius > view.right || e.point.y + newFiller.shape.radius > view.bottom) {
-				return;
-			}
-			if(config.fillerBalls.some(function(item) {
-				return item.collidesWith(newFiller);
-			})) {
-				return;
-			}
-			newFiller.shape.position = e.point;
 		}
 	});
 
