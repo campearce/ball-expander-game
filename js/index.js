@@ -95,25 +95,27 @@
 		return dist < this.shape.radius + ball.shape.radius && dist !== 0;
 	};
 
-	Ball.prototype.canExpand = function(radius) {
-		radius = radius || this.shape.radius;
+	Ball.prototype.grow = function(rate) {
+		var radius = this.shape.radius * rate;
+
 		if(this.shape.position.x - radius < 0 || this.shape.position.y - radius < 0) {
 			return false;
 		}
+
 		if(this.shape.position.x + radius > this.view.bounds.right || this.shape.position.y + radius > this.view.bounds.bottom) {
 			return false;
 		}
-		return true;
+
+		this.shape.radius *= rate;
 	};
 
-	Ball.prototype.canMoveTo = function(point) {
-		if(point.x - this.shape.radius < 0 || point.y - this.shape.radius < 0) {
-			return false;
+	Ball.prototype.moveTo = function(x, y) {
+		if(x - this.shape.radius >= 0 && x + this.shape.radius <= this.view.bounds.right) {
+			this.shape.position.x = x;
 		}
-		if(point.x + this.shape.radius > this.view.bounds.right || point.y + this.shape.radius > this.view.bounds.bottom) {
-			return false;
+		if(y - this.shape.radius >= 0 && y + this.shape.radius <= this.view.bounds.bottom) {
+			this.shape.position.y = y;
 		}
-		return true;
 	};
 
 	var randomiseNumber = function(minimum, maximum) {
@@ -174,8 +176,6 @@
 
 	view.on('frame', function() {
 		if (newFiller) {
-			var newRadius = newFiller.shape.radius * config.fillers.growthRate;
-
 			if(config.killerBalls.some(function(item) {
 				return item.collidesWith(newFiller);
 			})) {
@@ -184,23 +184,18 @@
 				newFiller = null;
 				return;
 			}
-			if(!newFiller.canExpand(newRadius)) {
-				return;
-			}
 			if(config.fillerBalls.some(function(item) {
 				return item.collidesWith(newFiller);
 			})) {
 				return;
 			}
-			newFiller.shape.radius *= config.fillers.growthRate;
+			newFiller.grow(config.fillers.growthRate);
 		}
 	});
 
 	view.on('mousemove', function(e) {
 		if(newFiller) {
-			if(newFiller.canMoveTo(e.point)) {
-				newFiller.shape.position = e.point;
-			}
+			newFiller.moveTo(e.point.x, e.point.y);
 		}
 	});
 
@@ -215,6 +210,7 @@
 		if(killerCollision || fillerCollision) {
 			return;
 		}
+
 		newFiller = new Ball({
 			type: 'filler',
 			view: view,
@@ -225,6 +221,7 @@
 				fillColor: config.fillers.fillColor
 			})
 		});
+
 		config.fillerBalls.push(newFiller);
 	});
 
