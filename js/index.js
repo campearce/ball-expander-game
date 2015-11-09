@@ -90,9 +90,13 @@
 		return this.increaseSpeed(inc * -1);
 	};
 
-	Ball.prototype.collidesWith = function(ball) {
-		var dist = this.shape.position.getDistance(ball.shape.position);
-		return dist < this.shape.radius + ball.shape.radius && dist !== 0;
+	Ball.prototype.collidesWith = function(point, radius) {
+		if(arguments.length === 1) {
+			radius = point.shape.radius;
+			point = point.shape.position;
+		}
+		var dist = this.shape.position.getDistance(point);
+		return dist < this.shape.radius + radius && dist !== 0;
 	};
 
 	Ball.prototype.grow = function(rate) {
@@ -195,16 +199,21 @@
 
 	view.on('mousemove', function(e) {
 		if(newFiller) {
-			newFiller.moveTo(e.point.x, e.point.y);
+			if(!config.fillerBalls.some(function(item) {
+				return item !== newFiller && item.collidesWith(e.point, newFiller.shape.radius);
+			})) {
+				newFiller.moveTo(e.point.x, e.point.y);
+			}
 		}
 	});
 
 	view.on('mousedown', function(e) {
+		var radius = 10;
 		var killerCollision = config.killerBalls.some(function(item) {
-				return item.shape.contains(e.point);
+				return item.shape.contains(e.point) || item.collidesWith(e.point, radius);
 			}),
 			fillerCollision = config.fillerBalls.some(function(item) {
-				return item.shape.contains(e.point);
+				return item.shape.contains(e.point) || item.collidesWith(e.point, radius);
 			});
 
 		if(killerCollision || fillerCollision) {
@@ -216,7 +225,7 @@
 			view: view,
 			shape: new paper.Shape.Circle({
 				center: e.point,
-				radius: 10,
+				radius: radius,
 				strokeColor: config.fillers.strokeColor,
 				fillColor: config.fillers.fillColor
 			})
