@@ -91,7 +91,7 @@
 	};
 
 	Ball.prototype.collidesWith = function(point, radius) {
-		if(arguments.length === 1) {
+		if(arguments.length === 1 && point instanceof Ball) {
 			radius = point.shape.radius;
 			point = point.shape.position;
 		}
@@ -197,12 +197,24 @@
 		}
 	});
 
-	view.on('mousemove', function(e) {
+	var tool = new paper.Tool();
+
+	tool.on('mousemove', function(e) {
 		if(newFiller) {
+			/*
+			 * Limit to view bounds because negative values are possible
+			 * maybe move this into the ball class, maybe not?
+			 * TODO
+			 */
+			var point = new paper.Point(
+				e.point.x < 0 ? newFiller.shape.position.x : e.point.x,
+				e.point.y < 0 ? newFiller.shape.position.y : e.point.y
+			);
+
 			if(!config.fillerBalls.some(function(item) {
-				return item !== newFiller && item.collidesWith(e.point, newFiller.shape.radius);
+				return item !== newFiller && item.collidesWith(point, newFiller.shape.radius);
 			})) {
-				newFiller.moveTo(e.point.x, e.point.y);
+				newFiller.moveTo(point.x, point.y);
 			}
 		}
 	});
