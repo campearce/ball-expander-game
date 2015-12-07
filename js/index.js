@@ -100,26 +100,42 @@
 	};
 
 	Ball.prototype.grow = function(rate) {
-		var radius = this.shape.radius * rate;
+		var radius = this.shape.radius * rate,
+			point = new paper.Point(this.shape.position);
 
-		if(this.shape.position.x - radius < 0 || this.shape.position.y - radius < 0) {
-			return false;
-		}
-
-		if(this.shape.position.x + radius > this.view.bounds.right || this.shape.position.y + radius > this.view.bounds.bottom) {
+		if(!this.isBoundX(point, radius) || !this.isBoundY(point, radius)) {
 			return false;
 		}
 
 		this.shape.radius *= rate;
 	};
 
-	Ball.prototype.moveTo = function(x, y) {
-		if(x - this.shape.radius >= 0 && x + this.shape.radius <= this.view.bounds.right) {
-			this.shape.position.x = x;
+	Ball.prototype.moveTo = function(point) {
+		this.shape.position = this.boundPosition(point);
+	};
+
+	Ball.prototype.isBoundX = function(point, radius) {
+		radius = radius || this.shape.radius;
+
+		return point.x - radius >= 0 && point.x + radius <= this.view.bounds.right;
+	};
+
+	Ball.prototype.isBoundY = function(point, radius) {
+		radius = radius || this.shape.radius;
+
+		return point.y - radius >= 0 && point.y + radius <= this.view.bounds.bottom;
+	};
+
+	Ball.prototype.boundPosition = function(point, radius) {
+		radius = radius || this.shape.radius;
+
+		if(!this.isBoundX(point, radius)) {
+			point.x = this.shape.position.x;
 		}
-		if(y - this.shape.radius >= 0 && y + this.shape.radius <= this.view.bounds.bottom) {
-			this.shape.position.y = y;
+		if(!this.isBoundY(point, radius)) {
+			point.y = this.shape.position.y;
 		}
+		return point;
 	};
 
 	var randomiseNumber = function(minimum, maximum) {
@@ -193,6 +209,11 @@
 			})) {
 				return;
 			}
+			/*
+			 * TODO
+			 * Maybe this will cause it to grow into a collision?
+			 * We only check for collisions before growing by the looks of it
+			 */
 			newFiller.grow(config.fillers.growthRate);
 		}
 	});
@@ -201,20 +222,12 @@
 
 	tool.on('mousemove', function(e) {
 		if(newFiller) {
-			/*
-			 * Limit to view bounds because negative values are possible
-			 * maybe move this into the ball class, maybe not?
-			 * TODO
-			 */
-			var point = new paper.Point(
-				e.point.x < 0 ? newFiller.shape.position.x : e.point.x,
-				e.point.y < 0 ? newFiller.shape.position.y : e.point.y
-			);
+			var point = newFiller.boundPosition(e.point);
 
 			if(!config.fillerBalls.some(function(item) {
 				return item !== newFiller && item.collidesWith(point, newFiller.shape.radius);
 			})) {
-				newFiller.moveTo(point.x, point.y);
+				newFiller.moveTo(point);
 			}
 		}
 	});
